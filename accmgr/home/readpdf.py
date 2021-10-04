@@ -1,4 +1,6 @@
 from io import StringIO
+import re
+
 
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
@@ -50,17 +52,20 @@ def split_to_title_and_pagenum(table_of_contents_entry):
 def read_and_tell(file_path):
     d = dict()
     content_string=convert_pdf_to_string(file_path)
-
     matches = ["This is a system generated receipt", "PAYMENT RECEIPT", "GOODS AND SERVICES TAX"]
-
     if all(x in content_string for x in matches):
         print("Yes, It's a challan receipt.")
-        if content_string.splitlines(True)[0].split(':')[0].strip()=="CPIN":
-            d['CPIN'] = content_string.splitlines(True)[0].split(':')[1].strip()
-        if content_string.splitlines(True)[4].split(':')[0].strip()=="GSTIN":
-            d['GSTIN'] = content_string.splitlines(True)[4].split(':')[1].strip()
+        if re.findall(r'CPIN[\s]*:[\s]*.{14}', content_string):
+            d['CPIN'] = re.findall(r'CPIN[\s]*:[\s]*.{14}', content_string)[0][-14:]
+        if re.findall(r'GSTIN[\s]*:[\s]*.{15}', content_string):
+            d['GSTIN'] = re.findall(r'GSTIN[\s]*:[\s]*.{15}', content_string)[0][-15:]
+        if re.findall(r'Deposit Date[\s]*:[\s]*.{10}', content_string):
+            d['Deposit Date'] = re.findall(r'Deposit Date[\s]*:[\s]*.{10}', content_string)[0][-10:]
+        if re.findall(r'Deposit Time[\s]*:[\s]*.{8}', content_string):
+            d['Deposit Time'] = re.findall(r'Deposit Time[\s]*:[\s]*.{8}', content_string)[0][-8:]
+        
     else:
         print("No, It's not a challan receipt.")
     
     return d
-  
+    
