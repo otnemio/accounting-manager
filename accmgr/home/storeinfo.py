@@ -1,6 +1,9 @@
+from datetime import date, datetime
+import pytz
 import hashlib
 from pathlib import Path
-from readpdf import *
+from .readpdf import *
+from .models import GST_Challan
  
 #function copied from internet
 def hash_file(filename):
@@ -12,6 +15,23 @@ def hash_file(filename):
             h_sha256.update(chunk)
     return h_sha256.hexdigest()
 
-for txt_path in Path(".").glob("*.pdf"):
-  print(read_and_tell(txt_path))
-  print(hash_file(txt_path))
+#function written by me
+def read_files_in_dir(dir_path):
+    for pdf_path in Path(dir_path).glob("*.pdf"):
+        challan = read_and_tell(pdf_path)
+        if challan:
+            # naive datetime
+            dt=datetime.strptime(challan['Deposit Date']+' '+challan['Deposit Time'], "%d/%m/%Y %H:%M:%S")
+            # add proper timezone
+            pst=pytz.timezone('Asia/Kolkata')
+            dt=pst.localize(dt)
+
+            chln = GST_Challan(CPIN=challan['CPIN'],
+            GSTIN=challan['GSTIN'],
+            DateTimeOfDeposit=dt,
+            FileHash=hash_file(pdf_path))
+
+            chln.save()
+
+            print(challan['GSTIN'])
+            print(hash_file(pdf_path))
