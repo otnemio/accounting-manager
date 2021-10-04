@@ -1,7 +1,6 @@
 from io import StringIO
 import re
 
-
 from pdfminer.converter import TextConverter
 from pdfminer.layout import LAParams
 from pdfminer.pdfdocument import PDFDocument
