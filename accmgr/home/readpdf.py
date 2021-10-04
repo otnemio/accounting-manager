@@ -48,7 +48,7 @@ def split_to_title_and_pagenum(table_of_contents_entry):
 
 #function written by me
 def read_and_tell(file_path):
-    d = dict();
+    d = dict()
     content_string=convert_pdf_to_string(file_path)
 
     matches = ["This is a system generated receipt", "PAYMENT RECEIPT", "GOODS AND SERVICES TAX"]
