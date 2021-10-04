@@ -26,12 +26,13 @@ def read_files_in_dir(dir_path):
             pst=pytz.timezone('Asia/Kolkata')
             dt=pst.localize(dt)
 
+            fh=hash_file(pdf_path)
             chln = GST_Challan(CPIN=challan['CPIN'],
             GSTIN=challan['GSTIN'],
             DateTimeOfDeposit=dt,
-            FileHash=hash_file(pdf_path))
+            FileHash=fh)
 
             chln.save()
 
             print(challan['GSTIN'])
-            print(hash_file(pdf_path))
+            print(fh)
